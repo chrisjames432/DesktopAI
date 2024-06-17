@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbox</title>
+    <style>
+
+
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        
+    }
+    code {
+        background-color: #f9f2f4;
+        border: 1px solid #e1e1e8;
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 90%;
+    }
+    pre code {
+        display: block;
+        padding: 10px;
+        overflow-x: auto;
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+
+    .msg{
+
+        background-color: lightblue;
+    }
+
+    #container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    
+    }
+    #chatSection {
+    flex: 3;
+    margin-right: 20px;
+    }
+    #chatbox {
+    border: 1px solid #ccc;
+    margin-top: 10px;
+    padding: 10px;
+    height: 400px;
+    overflow-y: auto;
+    }
+    #inputContainer {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    }
+    #userInput {
+    flex: 1;
+    height: 3em; /* Adjusted to 2 lines tall */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    resize: none; /* Prevents resizing */
+    overflow-wrap: break-word;
+    }
+    #sendButton {
+    height: 3em; /* Match the input height */
+    width: 50px;
+    background-color: green;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+    }
+    #sendButton:hover {
+    background-color: darkgreen;
+    }
+    #buttonContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    }
+    .actionButton {
+    height: 20px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 12px;
+    }
+    .actionButton:hover {
+    background-color: #0056b3;
+    }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="chatSection">
+            <div id="chatbox"></div>
+            <div id="inputContainer">
+                <textarea id="userInput" placeholder="Type your message here">How do I write a python script to print an ASCII of a cat</textarea>
+                <button id="sendButton">&gt;</button>
+            </div>
+        </div>
+        <div id="buttonContainer">
+            <button id='btn1' class="actionButton" onclick="sendDirectory()">Load project</button>
+            <button class="actionButton">Button 2</button>
+            <button class="actionButton">Button 3</button>
+            <h1>Select a Directory</h1>
+            
+            <button class="actionButton" >Send Directory to Python</button>
+        
+        </div>
+   
+    </div>
+
+    <script type="text/javascript">
+        function sendDirectory() {
+            
+                if (window.pywebview) {
+                    window.pywebview.api.open_file_dialog().then(response => {
+                        console.log(response);
+                        
+                    });
+                } else {
+                    console.error('PyWebView API not available');
+                }
+         
+        }
+    </script>
+    
+</body>
+</html>

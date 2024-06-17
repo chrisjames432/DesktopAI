@@ -1,0 +1,950 @@
+
+
+# Project Directory Structure
+This document details the structure of the project directory, including all directories and files.
+
+Below, you will find a comprehensive listing of the project's current directory structure and its file contents, including code and filenames.
+
+├── .gitignore
+├── app.js
+├── clib
+    ├── fbapp.js
+├── client
+    ├── index.html
+    ├── maincss.css
+├── db.js
+├── description.txt
+├── filenames.js
+├── filestuff.js
+
+
+# The contents of ..\three_portfilio\.gitignore:
+
+
+node_modules
+
+# The contents of ..\three_portfilio\app.js:
+
+
+// Dependencies
+
+var bodyParser = require('body-parser');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const express = require('express');
+var path = require('path');
+const app = express();
+var sessions = require('client-sessions');
+var validation = require('express-validator');
+var cors = require('cors');
+
+
+//enables cors
+app.use(cors({
+	'allowedHeaders': ['sessionId', 'Content-Type'],
+	'exposedHeaders': ['sessionId'],
+	'origin': '*',
+	'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+	'preflightContinue': false
+}));
+
+
+var cookieParser = require('cookie-parser');
+
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/client', express.static(path.join(__dirname, '/client')));
+app.use('/client/js', express.static(path.join(__dirname, '/client/js')));
+app.use('/client/js/images', express.static(path.join(__dirname, '/client/js')));
+app.use('/client/coindb', express.static(path.join(__dirname, '/client/coindb')));
+
+app.use(sessions({
+	cookieName: 'session',
+	secret: 'djdpq,24a2dd5f8v25s6sa38ss0s8dfsdkfj209u834029ukj3333',
+	duration: 30 * 60 * 1000,
+	activeDuration: 5 * 60 * 1000
+}));
+
+
+app.use(cookieParser());
+
+app.get('/', function (req, res) {
+	res.sendFile(__dirname + '/client/index.html');
+
+});
+
+//------------------------------------------------------------------
+app.post('/login_req', function (req, res) {
+
+	console.log(req.body);
+
+	req.session.user = req.body.username;
+	console.log('success user found passwords match');
+	res.cookie('username', req.body.username);
+	res.send('success');
+
+});
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+const httpServer = http.createServer(app);
+
+httpServer.listen(8081, () => {
+	console.log('HTTP Server running on port 8081');
+});
+
+//--------------------------------------------------
+
+
+app.post('/logout', function (req, res) {
+
+	console.log('logging out');
+	req.session.reset();
+	res.clearCookie('username');
+	res.send('logout');
+
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//set up socket events
+
+function rint(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+//--------------------------------------------------------------------
+var testplayers = {};
+var rooms = ['lobby', 'bitcoin', 'litecoin', 'doge'];
+
+
+var io = require('socket.io')(httpServer, {});
+//io.set('origins', '*:*');
+var PLAYER_LIST = {};
+
+//================================================================
+
+io.sockets.on('connection', function (socket) {
+	zz.p('new socket connection');
+	var localplayer = '';
+
+	//================================================================
+
+	socket.on('disconnect', function () {
+
+
+		delete PLAYER_LIST[localplayer];
+		io.sockets.emit('removeplayer', localplayer);
+		console.log(PLAYER_LIST);
+
+	});
+
+	//================================================================
+
+	socket.on('keys', function (data) {
+
+		if (PLAYER_LIST[localplayer] != undefined) {
+
+			PLAYER_LIST[localplayer] = data;
+			console.log('===========================\n');
+			console.log(PLAYER_LIST);
+
+
+		} else {
+
+			console.log('this player must reconnect');
+			//socket.emit('login','YOU MUST LOGIN');
+
+		}
+
+	});
+
+
+	//================================================================
+
+	socket.on('sendchattoserver', function (data) {
+
+		console.log(data);
+		io.sockets.emit('addtochat', data);
+
+	});
+
+	//================================================================
+
+	socket.on('signIn', function (data) {
+
+		var user = PLAYER_LIST[data];
+
+		if (user) {
+
+			socket.emit('signInResponse', 'THIS USER EXISTS<BR>PICK ANOTHER NAME');
+
+
+		} else {
+			socket.emit('signInResponse', 'CREATING USER');
+			PLAYER_LIST[data] = [0, 0, 200, 0, 200, 0];
+			localplayer = data;
+		}
+
+		console.log(PLAYER_LIST);
+
+	});
+
+});
+
+//================================================================
+
+
+setInterval(function () {
+
+	io.sockets.emit('locations', PLAYER_LIST);
+
+}, 1000 / 60);
+
+# The contents of ..\three_portfilio\db.js:
+
+/*
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://newuser11:T1qpFpVRpYd0UYHL@cluster0.wkx2z.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: false });
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+  // perform actions on the collection object
+  client.close();
+});
+
+*/
+
+const { MongoClient } = require('mongodb');
+// or as an es module:
+// import { MongoClient } from 'mongodb'
+
+// Connection URL
+const url = uri//'mongodb://localhost:27017';
+const client = new MongoClient(url);
+
+// Database Name
+const dbName = 'myProject';
+
+async function main() {
+  // Use connect method to connect to the server
+  await client.connect();
+  console.log('Connected successfully to server');
+  const db = client.db(dbName);
+  const collection = db.collection('documents');
+
+  // the following code examples can be pasted here...
+
+  return 'done.';
+}
+
+main()
+  .then(console.log)
+  .catch(console.error)
+  .finally(() => client.close());
+
+# The contents of ..\three_portfilio\description.txt:
+
+
+This poroject folder has the main three js library I was working on. And the developerr portfolio I was working on. 
+
+# The contents of ..\three_portfilio\filenames.js:
+
+
+const fileNames = [
+  "2sdiv67c",
+  "3s4yjtuk",
+  "4v895rt1",
+  "7esgkwmq",
+  "99h2n8up",
+  "awta8gf9",
+  "b5f58pqr",
+  "d547zj5x",
+  "j1e9oiin",
+  "kwbqoq3t",
+  "pbjqkilk",
+  "w5zjl5kk"
+];
+
+module.exports = fileNames;
+
+# The contents of ..\three_portfilio\filestuff.js:
+
+
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
+
+
+function generateImageName() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result + '.webp';
+  }
+
+ function renameimg(){ 
+const directoryPath = path.join(__dirname, 'client/images/aiart');
+var count = 1;
+fs.readdir(directoryPath, function (err, files) {
+  if (err) {
+    return console.log('Unable to scan directory: ' + err);
+  }
+  files.forEach(function (file) {
+    console.log(file);
+
+
+    const oldFileName = directoryPath+'/'+file;
+    const newFileName = directoryPath+'/'+generateImageName();
+   
+    fs.rename(oldFileName, newFileName, (err) => {
+      if (err) throw err;
+      console.log(`${oldFileName} was renamed to ${newFileName}`);
+      
+    });
+
+
+  });
+});
+
+ }
+
+function tojsfile(){
+
+    const directoryPath = path.join(__dirname, 'client/images/aiart');
+    var dir =directoryPath
+    fs.readdir(dir, (err, files) => {
+        if (err) {
+          console.error(`Error reading directory ${dir}: ${err}`);
+          return;
+        }
+      
+        const fileNames = files.map(file => file.split('.')[0]);
+        const fileArrayString = JSON.stringify(fileNames, null, 2);
+      
+        fs.writeFile('./filenames.js', `const fileNames = ${fileArrayString};\n\nmodule.exports = fileNames;`, (err) => {
+          if (err) {
+            console.error(`Error writing file: ${err}`);
+            return;
+          }
+      
+          console.log('File saved successfully');
+        });
+      });
+
+}
+
+tojsfile()
+//
+//renameimg()
+
+# The contents of ..\three_portfilio\clib\fbapp.js:
+
+
+// Dependencies
+
+var bodyParser = require('body-parser');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const express = require('express');
+var path = require('path');
+const app = express();
+var bcrypt = require('bcryptjs');
+var sessions = require('client-sessions');
+var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+var schema = mongoose.Schema;
+var objid = schema.ObjectId;
+var validation = require('express-validator');
+var firebase = require('./firebase.js')
+
+var cors = require('cors');
+var zz={};
+zz.p = function(t){console.log(t);}
+
+//enables cors
+app.use(cors({
+  'allowedHeaders': ['sessionId', 'Content-Type'],
+  'exposedHeaders': ['sessionId'],
+  'origin': '*',
+  'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  'preflightContinue': false
+}));
+
+
+var cookieParser = require('cookie-parser');
+const { response } = require('express');
+
+// Certificate
+//const privateKey = fs.readFileSync('/etc/letsencrypt/live/altstation.com/privkey.pem', 'utf8');
+//const certificate = fs.readFileSync('/etc/letsencrypt/live/altstation.com/cert.pem', 'utf8');
+//const ca = fs.readFileSync('/etc/letsencrypt/live/altstation.com/chain.pem', 'utf8');
+/*
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+app.use(function(req, res, next) {
+if (req.secure) {
+next();
+} else {
+res.redirect('https://' + req.headers.host + req.url);
+}
+});
+*/
+
+//dbcon --------------------------------------------------------
+const uri = "mongodb+srv://dogefreak:ssjl6Wa1iyOpbA1Z@cluster0-wpfxk.mongodb.net/test?retryWrites=true&w=majority";
+
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
+
+
+var User = mongoose.model('User', new mongoose.Schema({
+	id: objid,
+	email: {type: String, unique:true},
+	username: {type: String, unique:true},
+	password: String
+	
+	
+}));
+
+var connection = mongoose.connection;
+connection.on('connected',function(){
+	console.log('connected to db');
+	
+});
+
+
+//midd
+app.use(bodyParser.urlencoded({ extended:true }));
+app.use(validation());
+app.use('/client',  express.static(path.join(__dirname, '/client')));
+app.use('/client/js',  express.static(path.join(__dirname, '/client/js')));
+
+
+app.use(sessions({
+	cookieName:'session',
+	secret: 'djdpq,24a2dd5f8v25s6sa38ss0s8dfsdkfj209u834029ukj3333',
+	duration: 30 * 60 * 1000,
+	activeDuration: 5 * 60 * 1000
+	
+	
+}));
+
+
+app.use(cookieParser());
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/client/index.html');
+});
+
+
+app.get('/login', function(req, res){
+    res.sendFile(__dirname + '/client/login.html');
+});
+
+app.get('/signup', function(req, res){
+    res.sendFile(__dirname + '/client/signup.html');
+});
+
+app.get('/coindbstats', function(req, res){
+    res.sendFile(__dirname + '/client/stats.html');
+});
+
+app.get('/dashboard', function(req,res){
+
+	
+		
+	if(req.session && req.session.user){
+	
+		User.findOne({ email : req.session.user.email},function(err,user){
+			
+			if(!user){req.session.reset(); res.redirect('/login');}
+			else{		
+		
+			res.sendFile(__dirname + '/client/dashboard.html');
+			
+			}
+			
+			
+			
+			
+			
+			
+		});
+		
+		
+		
+		
+		
+	}else{
+		
+	//	res.redirect('/');
+
+	res.sendFile(__dirname + '/client/dashboard.html');
+
+}
+	
+	
+	
+	
+	
+});
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Starting both http & https servers
+const httpServer = http.createServer(app);
+//const httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(9900, () => {
+	console.log('HTTP Server running on port 9900');
+});
+
+/*
+httpsServer.listen(443, () => {
+	console.log('HTTPS Server running on port 443');
+});
+*/
+
+
+//----------------------------------------------------
+
+//--------------------------------------------------
+
+app.post('/register', function(req,res){
+	
+	
+	var data = req.body;
+	var out = {};
+		
+	
+	req.check('email','INVALID EMAIL').isEmail();
+	req.check('password','INVALID PASSWORD').isLength({min:5}).equals(req.body.cpassword)
+	
+	var errors = req.validationErrors();
+	if (errors){
+		
+		console.log(errors);
+		
+		out.errors=errors;
+		res.send(out);
+	}else{
+		
+	
+	
+	//--------------------------------------------------------------------------------
+	var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+	var user = new User({
+		username: req.body.username,
+		password: hash,
+		email: req.body.email
+		
+		
+		
+	});
+	
+	
+	
+	//------------------------------------------------
+	user.save(function(err){
+		
+		if(err)
+			{
+			
+				var error = 'SOMETHING WENT WRONG.. TRY AGAIN.';
+				if (err.code === 11000){ error = 'USERNAME OR EMAIL ALREADY REGISTERED' } 
+				
+		
+				console.log(err);
+				
+				res.send(error);
+				
+				
+				}
+				else{ 
+				
+				console.log('registered');
+				req.session.user = user;
+				res.cookie('username', data.username);
+				res.send('success'); 
+				
+				
+				}
+	
+	
+	
+	
+		
+	});
+	
+	
+	
+	//--------------------------------------------------------------------------------
+	
+		
+		
+	}
+	
+
+	
+	
+});
+
+//------------------------------------------------------------------
+app.post('/login', function(req,res){
+	
+console.log(req.body);
+	
+		User.findOne({username:req.body.username}, function(err,user){  
+		
+	
+		if(!user){
+		
+		res.send('INVALID USER');
+		
+	}else{
+		
+		console.log(req.body.password +" - "+ user.password);
+		
+		if( bcrypt.compareSync(req.body.password, user.password  )  ){ 
+		req.session.user = user;
+		console.log('success user found passwords match');
+		res.cookie('username', req.body.username);
+		res.send('success');
+
+       	}
+		else{		res.send('INVALID OR PASSWORD');	}
+		
+	}
+		
+	});
+	
+	
+});
+
+app.post('/logout', function(req,res){
+	
+	console.log('logging out');
+	req.session.reset();
+	res.clearCookie('username');
+	res.send('logout');
+	
+	
+	
+});
+
+
+//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+
+
+	
+
+# The contents of ..\three_portfilio\client\index.html:
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>TRADELIB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=yes, minimum-scale=1.0, maximum-scale=1.0">
+  <meta http-equiv='cache-control' content='no-cache'>
+  <meta http-equiv='expires' content='0'>
+  <meta http-equiv='pragma' content='no-cache'>
+  <link rel="stylesheet" href="./client/maincss.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Michroma" />
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100;700&display=swap" rel="stylesheet">
+
+</head>
+
+
+  <!-- Write your comments here ---------------------------------------------------------------------------------------->
+
+
+<body>
+
+  <div id="canvas-container"></div>
+
+  <div id='contentbox' class="container">
+
+     
+    <div class="container my-4"  style="display: none;">
+      <div class="card text-center" style="background-color: transparent; border: 1px solid white;">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <button type="button" class="btn btn-default">
+                <img src="./client/icons/metamask.png" alt="MetaMask logo">
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-default" >
+                <img src="./client/icons/tronlink.png" alt="TRON logo">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  </div>
+
+  <!-- Write your comments here ---------------------------------------------------------------------------------------->
+
+
+  <script type="module">
+    import { NewStage } from './client/js/classes/stage.js';
+    import * as THREE from './client/js/three/build/three.module.js';
+    import * as zz from './client/js/functions.js';
+    import * as ct from './client/js/components/surface_gui.js';
+    import * as tweenfun from './client/js/components/tweenfun.js'
+    import * as to from './client/js/components/text_object.js'
+    import * as stagef from './client/js/stagef.js'
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function portfolioscene(stage,ondone){
+
+  stagef.loadblend(stage, 'title.glb', function (mod) {
+          var kids = mod.children
+          var main = kids[2]
+          console.log(kids)
+          stagef.setCameraToMesh(main, stage.camera, 1)
+          stagef.displayScreenResolution()
+          console.log('cam set')
+          
+          ondone(kids)
+
+        });
+
+}
+
+/////////////////////////////
+
+  $(function () {
+
+    const stage = NewStage();
+          stage.init();
+          stage.animate();
+       
+         //zz.addGridHelper(stage);
+        //stagef.makeimages(stage);
+        //stagef.updatecam(stage)
+        window.game = stage
+        stagef.init_lights(stage);
+        stage.wheelfun=function(){console.log('wheel roll def')}
+        stage.defaultfun=stage.wheelfun
+        
+          document.addEventListener('wheel',function(whl){
+            console.log(whl)
+          stage.wheelfun()
+
+          })
+
+       // stage.initcontrols()
+    
+      //  zz.setcam(stage.camera, new THREE.Vector3(10,50,100), cube.position)
+
+        portfolioscene(stage,function(kids){
+          zz.init_clickable(stage)
+
+          stage.wheelfun=function(){
+
+          var back = kids[2]
+          console.log('btn was clicked')
+          stagef.animateObjectToPosition(stage, back ,new THREE.Vector3(20,200,-1000),200)
+          stage.scene.background = new THREE.Color(0xF0F0F0);
+          
+           setTimeout(function(){
+        stagef.makeimages(stage,function(theplane){
+
+          var ranx = zz.getRandomBetween(-800, 800)
+            var rany = zz.getRandomBetween(-2000, 1000)
+            var ranz = zz.getRandomBetween(-30, -55);
+
+          setTimeout(function(){
+
+            stagef.animateObjectToPosition(stage, theplane ,new THREE.Vector3(ranx,rany,ranz),2000)
+
+
+          },100*zz.getRandomBetween(3,10))
+        
+        });
+
+         },1000)
+
+
+          console.log('wheel fun done')
+          stage.wheelfun=stage.defaultfun;
+
+          }
+
+        })
+     
+ 
+   
+     
+
+
+    //$("#overlay").delay(500).fadeOut(2000);
+    var content = document.getElementById('contentbox');
+   // content.style.display = 'none';
+  
+
+      });
+
+    
+
+  </script>
+
+
+</body>
+
+</html>
+
+# The contents of ..\three_portfilio\client\maincss.css:
+
+
+html,
+body {
+
+	font-family: 'Josefin Sans', sans-serif;
+	margin: 0px;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(62, 71, 71, 1);
+
+}
+
+#canvas-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgb(0, 0, 0);
+	z-index: 0;
+}
+
+#three-canvas {
+	width: 100%;
+	height: 100%;
+}
+
+#overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0);
+	z-index:1;
+	overflow-y: scroll
+}
+
+#title {
+
+	color: rgb(41, 41, 41);
+	border-bottom: 1px solid whitesmoke;
+	border-left: 1px solid whitesmoke;
+
+	overflow: hidden;
+	width: 60%;
+	margin: 0 auto;
+	margin-bottom: 100px;
+	padding: 20px;
+	background-color: rgba(248, 248, 248, 0.75);
+
+}
+
+#title h1 {
+	text-align: left;
+	font-weight: bold;
+	font-size: 32px;
+	width: 100%;
+	padding: 5px;
+
+}
+
+
+#title p {
+	width: 90%;
+	text-align: left;
+
+	font-size: 18px;
+	;
+
+	padding: 5px;
+
+
+}
+
+#c1 {
+	background: none;
+	margin: 0 auto;
+	background: rgba(232, 234, 235, 0.8) !important;
+}
+
+#contentbox {
+
+
+	margin-top: 100px;
+
+}
+
+#title2 {
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+
+	color: rgb(211, 211, 211);
+	border-bottom: 5px solid whitesmoke;
+	border-left: 5px solid whitesmoke;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	background-color: rgba(169, 183, 211, 0.98);
+	border-bottom: 3px solid rgba(1, 23, 34, 0.25);
+	border-left: 3px solid rgba(1, 23, 34, 0.25)
+
+}
+
+.btn {
+	border: 1px solid black;
+	padding: 5px;
+	width: 90%;
+  }
+  
+
+
