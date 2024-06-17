@@ -6,3 +6,4 @@ Flask
 Flask-SocketIO
 pymongo
 markdown
+pyttsx3

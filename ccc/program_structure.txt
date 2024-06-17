@@ -1,8 +1,0 @@
-Only show files you edit.
-This is the current version of the project directory and its file contents.
-
-Directory Structure of the Project
-This file contains a structured listing of all directories and files within the project. Contents are included for specified files.
-
-
-
