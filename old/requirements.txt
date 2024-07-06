@@ -1,8 +1,0 @@
-requests
-pillow
-python-dotenv
-openai
-Flask
-Flask-SocketIO
-pymongo
-markdown
