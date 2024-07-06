@@ -457,48 +457,10 @@ def append_file_contents(filename, files_list):
                 file.write(f"Error reading file: {str(e)}")
             file.write("\n\n--- end -----------------------\n\n\n")
 
-def make_program_prompt(filepath):
-    ignore_list = [
-        'node_modules',
-        '.gitignore',
-        '.env'
-        # Add more files or directories as needed
-    ]
-    filename = 'program_structure.txt'
-    directory = os.path.dirname(os.path.abspath(filepath))
-    
-    directory_structure, files_list = create_directory_structure(directory, ignore_list)
-    write_directory_structure(filename, directory_structure)
-    append_file_contents(filename, files_list)
-
-# Example usage:
-make_program_prompt('C:/Users/dad/Desktop\python video')
 
 
 
 
 
 
-
-
-
-
-
-'''
-
-db = QuickDB('maindb.db')
-db.tab1 = db.create_table('tab1')
-db.prompts = db.create_table('prompts')
-db.alpaca = db.create_table('alpaca')
-db.sp500 = db.create_table('sp500')
-db.sp500_updates = db.create_table('sp500_updates')
-db.news = db.create_table('news')
-db.article = db.create_table('article')
-
-
-sitejson = Jedit('site/data.json')
-sitejson.delete_all()
-
-
-'''
 

@@ -1,0 +1,10 @@
+The image depicts a computer desktop with numerous application icons arranged on the left side. On the right side of the screen, there is a window titled "Screenshot Capture." 
+
+The Screenshot Capture window has several sections:
+1. **Monitor and Image Preview:** It shows options for selecting different monitors (Monitor 1, Monitor 2, Monitor 3, Monitor 4) and an image preview.
+2. **System Prompt:** Contains a text area with the following prompt: "You are a helpful assistant who analyzes images and responds in markdown to any question."
+3. **User Question:** Contains a text area where a user has entered a question: "What is this image about? Can you summarize it?"
+4. **Response:** Displays progress text "Taking screenshot..."
+5. **Submit Button:** Allows the user to submit their input.
+
+The desktop icons mostly represent various games and applications like EA, Steam, The Sims 4, Portal, Discord, etc.
