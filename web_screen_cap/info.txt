@@ -1,1 +1,0 @@
-This program captures a screenshot from a website url. 

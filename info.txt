@@ -1,3 +1,0 @@
-Repository Name: DesktopAI
-Description: This is a placeholder description for the DesktopAI repository.
-Date Created: 2024-08-22
